@@ -105,6 +105,8 @@ class ClusteringComparison:
             self.dataset_widget.value,
             self.noise_widget.value
         )
+        self.X = np.array(self.X, dtype=np.float64)
+
     
     def update_plots(self, _):
         clear_output(wait=True)
@@ -144,3 +146,7 @@ class ClusteringComparison:
         
         # Call visualize method
         self.visualization.visualize(self.X, self.algs_list, labels_list, titles)
+
+if __name__ == '__main__':
+    list_algs = ['KMeans', 'Hierarchical', 'DBSCAN', 'OPTICS']
+    comp = ClusteringComparison(list_algs)
