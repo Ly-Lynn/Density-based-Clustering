@@ -168,28 +168,6 @@ class Denclue2D:
         self.merge_cluster()
         return self.get_result()
 
-    def plot_kde(self, ax, grid_size=100):
-        x_min, x_max = min(self.x) - 0.5, max(self.x) + 0.5
-        y_min, y_max = min(self.y) - 0.5, max(self.y) + 0.5
-        
-        x_grid = np.linspace(x_min, x_max, grid_size)
-        y_grid = np.linspace(y_min, y_max, grid_size)
-        x_mesh, y_mesh = np.meshgrid(x_grid, y_grid)
-        
-        z = get_z(x_mesh, y_mesh, lambda x, y: self.f_gauss(np.array([x, y])))
-        
-        contour = ax.contourf(x_mesh, y_mesh, z, levels=20, cmap="viridis")
-        plt.colorbar(contour, ax=ax, label="Density")
-        
-        # Vẽ các điểm dữ liệu
-        ax.scatter(self.x, self.y, c='white', s=30, edgecolor='black', label="Data points")
-        
-        ax.set_xlabel("Feature 1")
-        ax.set_ylabel("Feature 2")
-        ax.set_title("Kernel Density Estimation (KDE) of the Dataset")
-        ax.legend()
-        ax.grid(True)
-
     def plot_hill_climbing(self, ax):
         ax.scatter([p[0] for p in self.ps], [p[1] for p in self.ps], c='lightgrey', s=30, label="Data points")
         
@@ -233,9 +211,8 @@ class Denclue2D:
     def __call__(self):
         _, labels = self.work()
         if self.plot:
-            fig, axes = plt.subplots(1, 3, figsize=(15, 6))
-            self.plot_hill_climbing(axes[0])
-            self.plot_clusters(axes[1], labels)
-            self.plot_kde(axes[2], 100)
+            fig, axes = plt.subplots(1, 1, figsize=(15, 6))
+            # self.plot_hill_climbing(axes[0])
+            self.plot_clusters(axes[0], labels)
             plt.show()
         return self.get_result()
