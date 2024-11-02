@@ -211,7 +211,7 @@ class Denclue2D:
     def __call__(self):
         _, labels = self.work()
         if self.plot:
-            fig, axes = plt.subplots(1, 1, figsize=(15, 6))
+            fig, axes = plt.subplots(1, 1, figsize=(10, 10))
             # self.plot_hill_climbing(axes[0])
             self.plot_clusters(axes, labels)
             plt.show()
