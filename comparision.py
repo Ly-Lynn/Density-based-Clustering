@@ -8,16 +8,19 @@ from .visualization import Visualization
 
 def generate_dataset(dataset_type, noise=0.1, n_samples=300):
     if dataset_type == "moons":
-        return make_moons(n_samples=n_samples, noise=noise)
+        X, _ = make_moons(n_samples=n_samples, noise=noise)  # Extract only X
+        return X
     elif dataset_type == "circles":
-        return make_circles(n_samples=n_samples, noise=noise, factor=0.5)
+        X, _ = make_circles(n_samples=n_samples, noise=noise, factor=0.5)  # Extract only X
+        return X
     elif dataset_type == "blobs":
-        return make_blobs(n_samples=n_samples, centers=3, cluster_std=noise)
+        X, _ = make_blobs(n_samples=n_samples, centers=3, cluster_std=noise)  # Extract only X
+        return X
     elif dataset_type == "anisotropic":
-        X, y = make_blobs(n_samples=n_samples, centers=3)
+        X, _ = make_blobs(n_samples=n_samples, centers=3)  # Extract only X
         transformation = [[0.6, -0.6], [-0.4, 0.8]]
         X = np.dot(X, transformation)
-        return X, y
+        return X
     
 class ClusteringComparison:
     def __init__(self, list_algs):
