@@ -20,12 +20,11 @@ def generate_dataset(dataset_type, noise=0.1, n_samples=300):
         return X, y
     
 class ClusteringComparison:
-    def __init__(self):
+    def __init__(self, list_algs):
         self.dataset_types = ['moons', 'circles', 'blobs', 'anisotropic']
-        
         # Initialize visualization object
         self.visualization = Visualization()
-        
+        self.algs_list = list_algs
         # Widgets cho dataset
         self.dataset_widget = widgets.Dropdown(
             options=self.dataset_types,
@@ -39,58 +38,57 @@ class ClusteringComparison:
             step=0.01,
             description='Noise:'
         )
+        for alg in list_algs:
+            if alg == 'KMeans':
+                self.kmeans_widget = widgets.IntSlider(
+                    value=2,
+                    min=2,
+                    max=10,
+                    description='KMeans clusters:'
+                )
+            if alg == 'Hierarchical':
+                self.hierarchical_widget = widgets.IntSlider(
+                    value=2,
+                    min=2,
+                    max=10,
+                    description='Hierarchical clusters:'
+                )
+            if alg == 'DBSCAN':
+                self.dbscan_eps_widget = widgets.FloatSlider(
+                    value=0.3,
+                    min=0.1,
+                    max=1.0,
+                    step=0.05,
+                    description='DBSCAN eps:'
+                )
+                self.dbscan_min_samples_widget = widgets.IntSlider(
+                    value=5,
+                    min=2,
+                    max=15,
+                    description='DBSCAN min_samples:'
+                )
+            if alg == 'OPTICS':
+                self.optics_min_samples_widget = widgets.IntSlider(
+                    value=5,
+                    min=2,
+                    max=15,
+                    description='OPTICS min_samples:'
+                )
         
-        # Widgets cho KMeans
-        self.kmeans_n_clusters = widgets.IntSlider(
-            value=2,
-            min=2,
-            max=10,
-            description='K-Means clusters:'
-        )
-        
-        # Widgets cho Hierarchical
-        self.hierarchical_n_clusters = widgets.IntSlider(
-            value=2,
-            min=2,
-            max=10,
-            description='Hierarchical clusters:'
-        )
-        
-        # Widgets cho DBSCAN
-        self.dbscan_eps = widgets.FloatSlider(
-            value=0.3,
-            min=0.1,
-            max=1.0,
-            step=0.05,
-            description='DBSCAN eps:'
-        )
-        self.dbscan_min_samples = widgets.IntSlider(
-            value=5,
-            min=2,
-            max=15,
-            description='DBSCAN min_samples:'
-        )
-        
-        # Widgets cho OPTICS
-        self.optics_min_samples = widgets.IntSlider(
-            value=5,
-            min=2,
-            max=15,
-            description='OPTICS min_samples:'
-        )
         
         # Layout
+
         self.dataset_controls = widgets.VBox([
             self.dataset_widget,
             self.noise_widget
         ])
-        
+
         self.algorithm_controls = widgets.VBox([
-            self.kmeans_n_clusters,
-            self.hierarchical_n_clusters,
-            self.dbscan_eps,
-            self.dbscan_min_samples,
-            self.optics_min_samples
+            self.kmeans_n_clusters if 'KMeans' in list_algs else widgets.VBox([]),
+            self.hierarchical_n_clusters if 'Hierarchical' in list_algs else widgets.VBox([]),
+            self.dbscan_eps if 'DBSCAN' in list_algs else widgets.VBox([]),
+            self.dbscan_min_samples if 'DBSCAN' in list_algs else widgets.VBox([]),
+            self.optics_min_samples if 'OPTICS' in list_algs else widgets.VBox([])
         ])
         
         # Update button
@@ -103,7 +101,11 @@ class ClusteringComparison:
             self.algorithm_controls,
             self.update_button
         ]))
-        
+        self.X = generate_dataset(
+            self.dataset_widget.value,
+            self.noise_widget.value
+        )
+    
     def update_plots(self, _):
         clear_output(wait=True)
         
@@ -114,40 +116,31 @@ class ClusteringComparison:
             self.update_button
         ]))
         
-        # Generate dataset
-        X, _ = generate_dataset(
-            self.dataset_widget.value,
-            self.noise_widget.value
-        )
-        
+        titles = []
+        titles.append(f'Original Data\nDataset: {self.dataset_widget.value}, Noise: {self.noise_widget.value:.2f}')
+        labels_list = []
+        labels_list.append(np.zeros(len(self.X)))
         # Perform clustering
-        kmeans = KMeans(n_clusters=self.kmeans_n_clusters.value)
-        hierarchical = AgglomerativeClustering(n_clusters=self.hierarchical_n_clusters.value)
-        dbscan = DBSCAN(eps=self.dbscan_eps.value, min_samples=self.dbscan_min_samples.value)
-        optics = OPTICS(min_samples=self.optics_min_samples.value)
-        
-        # Fit and get labels
-        kmeans_labels = kmeans.fit_predict(X)
-        hierarchical_labels = hierarchical.fit_predict(X)
-        dbscan_labels = dbscan.fit_predict(X)
-        optics_labels = optics.fit_predict(X)
-        
-        # Titles and labels list
-        titles = [
-            f'Original Data\nDataset: {self.dataset_widget.value}, Noise: {self.noise_widget.value:.2f}',
-            f'K-Means\nClusters: {self.kmeans_n_clusters.value}',
-            f'Hierarchical\nClusters: {self.hierarchical_n_clusters.value}',
-            f'DBSCAN\neps: {self.dbscan_eps.value}, min_samples: {self.dbscan_min_samples.value}',
-            f'OPTICS\nmin_samples: {self.optics_min_samples.value}'
-        ]
-        
-        labels_list = [
-            np.zeros(len(X)),
-            kmeans_labels,
-            hierarchical_labels,
-            dbscan_labels,
-            optics_labels
-        ]
+        if self.kmeans_widget.value > 0:
+            kmeans = KMeans(n_clusters=self.kmeans_widget.value)
+            kmeans_labels = kmeans.fit_predict(self.X)
+            titles.append(f'KMeans\nClusters: {self.kmeans_widget.value}')
+            labels_list.append(kmeans_labels)
+        if self.hierarchical_widget.value > 0:
+            hierarchical = AgglomerativeClustering(n_clusters=self.hierarchical_widget.value)
+            hierarchical_labels = hierarchical.fit_predict(self.X)
+            titles.append(f'Hierarchical\nClusters: {self.hierarchical_widget.value}')
+            labels_list.append(hierarchical_labels)
+        if self.dbscan_eps_widget.value > 0:
+            dbscan = DBSCAN(eps=self.dbscan_eps_widget.value, min_samples=self.dbscan_min_samples_widget.value)
+            dbscan_labels = dbscan.fit_predict(self.X)
+            titles.append(f'DBSCAN\neps: {self.dbscan_eps_widget.value}, min_samples: {self.dbscan_min_samples_widget.value}')
+            labels_list.append(dbscan_labels)
+        if self.optics_min_samples_widget.value > 0:
+            optics = OPTICS(min_samples=self.optics_min_samples_widget.value)
+            optics_labels = optics.fit_predict(self.X)
+            titles.append(f'OPTICS\nmin_samples: {self.optics_min_samples_widget.value}')
+            labels_list.append(optics_labels)
         
         # Call visualize method
-        self.visualization.visualize(X, labels_list, titles)
+        self.visualization.visualize(self.X, self.algs_list, labels_list, titles)
