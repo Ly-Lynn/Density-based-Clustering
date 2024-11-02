@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from matplotlib.colors import ListedColormap
 
 class Visualization:
     def __init__(self, algs_list, figsize=(20, 12)):
@@ -11,17 +11,16 @@ class Visualization:
 
     def plot_clusters(self, X, labels, title, ax):
         unique_labels = np.unique(labels)
+        colors = plt.cm.viridis(np.linspace(0, 1, len(unique_labels)))
         
-        if len(unique_labels) == 1:
-            colors = ['red' if unique_labels[0] == -1 else 'blue']
-        else:
-            colors = ['red' if label == -1 else plt.cm.viridis(i / (len(unique_labels) - 1)) 
-                      for i, label in enumerate(unique_labels)]
-        
-        for i, label in enumerate(unique_labels):
-            color = colors[i]
+        # Lưu trữ bảng màu cho reachability plot
+        self.colors_map = {label: colors[i] for i, label in enumerate(unique_labels)}
+        self.colors_map[-1] = 'red'  # Màu đỏ cho nhiễu
+
+        for label in unique_labels:
+            color = self.colors_map[label]
             if label == -1:
-                ax.scatter(X[labels == label, 0], X[labels == label, 1], c='red', s=30, label='Noise')
+                ax.scatter(X[labels == label, 0], X[labels == label, 1], c=color, s=30, label='Noise')
             else:
                 ax.scatter(X[labels == label, 0], X[labels == label, 1], color=color, s=30, label=f'Cluster {label}')
         
@@ -35,8 +34,7 @@ class Visualization:
         ax.axis('equal')
 
     def plot_reachability(self, reachability, labels, ax):
-        colors = ['red' if label == -1 else plt.cm.viridis(label / (np.max(labels) + 1))
-                  for label in labels]
+        colors = [self.colors_map[label] for label in labels]
         ax.bar(range(len(reachability)), reachability, color=colors, edgecolor='black')
         ax.set_title("OPTICS Reachability Plot")
         ax.set_xlabel("Points ordered by OPTICS")
