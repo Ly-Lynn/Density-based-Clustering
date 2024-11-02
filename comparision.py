@@ -6,7 +6,7 @@ import ipywidgets as widgets
 from IPython.display import display, clear_output
 from .visualization import Visualization
 
-def generate_dataset(dataset_type, noise=0.1, n_samples=300):
+def generate_dataset(dataset_type, noise=0.1, n_samples=100):
     if dataset_type == "moons":
         X, _ = make_moons(n_samples=n_samples, noise=noise)  # Extract only X
         return X
