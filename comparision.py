@@ -84,11 +84,11 @@ class ClusteringComparison:
         ])
 
         self.algorithm_controls = widgets.VBox([
-            self.kmeans_n_clusters if 'KMeans' in list_algs else widgets.VBox([]),
-            self.hierarchical_n_clusters if 'Hierarchical' in list_algs else widgets.VBox([]),
-            self.dbscan_eps if 'DBSCAN' in list_algs else widgets.VBox([]),
-            self.dbscan_min_samples if 'DBSCAN' in list_algs else widgets.VBox([]),
-            self.optics_min_samples if 'OPTICS' in list_algs else widgets.VBox([])
+            self.kmeans_widget if 'KMeans' in list_algs else widgets.VBox([]),
+            self.hierarchical_widget if 'Hierarchical' in list_algs else widgets.VBox([]),
+            self.dbscan_eps_widget if 'DBSCAN' in list_algs else widgets.VBox([]),
+            self.dbscan_min_samples_widget if 'DBSCAN' in list_algs else widgets.VBox([]),
+            self.optics_min_samples_widget if 'OPTICS' in list_algs else widgets.VBox([])
         ])
         
         # Update button
