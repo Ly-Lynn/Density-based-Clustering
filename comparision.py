@@ -104,11 +104,7 @@ class ClusteringComparison:
             self.algorithm_controls,
             self.update_button
         ]))
-        self.X = generate_dataset(
-            self.dataset_widget.value,
-            self.noise_widget.value
-        )
-        self.X = np.array(self.X, dtype=np.float64)
+        self.X = None
 
     
     def update_plots(self, _):
@@ -120,6 +116,13 @@ class ClusteringComparison:
             self.algorithm_controls,
             self.update_button
         ]))
+        
+        # Cập nhật lại dữ liệu với dataset và noise mới
+        self.X = generate_dataset(
+            self.dataset_widget.value,
+            self.noise_widget.value
+        )
+        self.X = np.array(self.X, dtype=np.float64)
         
         titles = []
         titles.append(f'Original Data\nDataset: {self.dataset_widget.value}, Noise: {self.noise_widget.value:.2f}')
@@ -149,6 +152,7 @@ class ClusteringComparison:
         
         # Call visualize method
         self.visualization.visualize(self.X, labels_list, titles)
+
 
 if __name__ == '__main__':
     list_algs = ['KMeans', 'Hierarchical', 'DBSCAN', 'OPTICS']
