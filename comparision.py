@@ -23,7 +23,8 @@ def generate_dataset(dataset_type, noise=0.1, n_samples=100):
         return X
     
 class ClusteringComparison:
-    def __init__(self, list_algs):
+    def __init__(self, list_algs, custom_dataset=None):
+        self.custom_dataset = custom_dataset
         self.dataset_types = ['moons', 'circles', 'blobs', 'anisotropic']
         self.algs_list = list_algs
         self.visualization = Visualization(self.algs_list)
@@ -106,9 +107,11 @@ class ClusteringComparison:
             self.algorithm_controls,
             self.update_button
         ]))
-        
-        self.X = generate_dataset(self.dataset_widget.value, self.noise_widget.value)
-        self.X = np.array(self.X, dtype=np.float64)
+        if self.custom_dataset is not None:
+            self.X = self.custom_dataset
+        else:
+            self.X = generate_dataset(self.dataset_widget.value, self.noise_widget.value)
+            self.X = np.array(self.X, dtype=np.float64)
         
         titles = [f'Original Data\nDataset: {self.dataset_widget.value}, Noise: {self.noise_widget.value:.2f}']
         labels_list = [np.zeros(len(self.X))]
