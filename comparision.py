@@ -148,7 +148,7 @@ class ClusteringComparison:
             labels_list.append(optics_labels)
         
         # Call visualize method
-        self.visualization.visualize(self.X, self.algs_list, labels_list, titles)
+        self.visualization.visualize(self.X, labels_list, titles)
 
 if __name__ == '__main__':
     list_algs = ['KMeans', 'Hierarchical', 'DBSCAN', 'OPTICS']
