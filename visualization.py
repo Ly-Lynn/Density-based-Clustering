@@ -35,8 +35,7 @@ class Visualization:
 
     def plot_reachability(self, reachability, labels, ax):
         # print(self.colors_map)
-        colors = [self.colors_map[label] for label in labels]
-        ax.bar(range(len(reachability)), reachability, color=colors)
+        colors = [self.colors_map[label] if label in self.colors_map else 'black' for label in labels]        ax.bar(range(len(reachability)), reachability, color=colors)
         ax.set_title("OPTICS Reachability Plot")
         ax.set_xlabel("Points ordered by OPTICS")
         ax.set_ylabel("Reachability Distance")
