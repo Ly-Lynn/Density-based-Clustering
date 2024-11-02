@@ -34,7 +34,15 @@ class Visualization:
         
         ax.axis('equal')
 
-    def visualize(self, X, labels_list, titles):
+    def plot_reachability(self, reachability, labels, ax):
+        colors = ['red' if label == -1 else plt.cm.viridis(label / (np.max(labels) + 1))
+                  for label in labels]
+        ax.bar(range(len(reachability)), reachability, color=colors, edgecolor='black')
+        ax.set_title("OPTICS Reachability Plot")
+        ax.set_xlabel("Points ordered by OPTICS")
+        ax.set_ylabel("Reachability Distance")
+
+    def visualize(self, X, labels_list, titles, reachability=None, optics_labels=None):
         if self.fig is not None:
             plt.close(self.fig)
 
@@ -48,8 +56,12 @@ class Visualization:
         for ax, labels, title in zip(self.axes[:-1], labels_list, titles):
             self.plot_clusters(X, labels, title, ax)
         
-        # Hide the last empty plot area
-        self.axes[-1].axis('off')
+        # If OPTICS is used, plot the reachability plot on the last subplot
+        if 'OPTICS' in self.algs_list and reachability is not None:
+            self.plot_reachability(reachability, optics_labels, self.axes[-1])
+        else:
+            # Hide the last empty plot area if not using OPTICS
+            self.axes[-1].axis('off')
         
         plt.tight_layout()
         plt.show()

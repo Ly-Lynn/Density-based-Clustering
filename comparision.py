@@ -25,10 +25,8 @@ def generate_dataset(dataset_type, noise=0.1, n_samples=300):
 class ClusteringComparison:
     def __init__(self, list_algs):
         self.dataset_types = ['moons', 'circles', 'blobs', 'anisotropic']
-        # Initialize visualization object
         self.algs_list = list_algs
         self.visualization = Visualization(self.algs_list)
-        # Widgets cho dataset
         self.dataset_widget = widgets.Dropdown(
             options=self.dataset_types,
             description='Dataset:',
@@ -77,9 +75,6 @@ class ClusteringComparison:
                     max=15,
                     description='OPTICS min_samples:'
                 )
-        
-        
-        # Layout
 
         self.dataset_controls = widgets.VBox([
             self.dataset_widget,
@@ -94,11 +89,9 @@ class ClusteringComparison:
             self.optics_min_samples_widget if 'OPTICS' in list_algs else widgets.VBox([])
         ])
         
-        # Update button
         self.update_button = widgets.Button(description='Update Plots')
         self.update_button.on_click(self.update_plots)
         
-        # Display widgets
         display(widgets.VBox([
             self.dataset_controls,
             self.algorithm_controls,
@@ -106,52 +99,46 @@ class ClusteringComparison:
         ]))
         self.X = None
 
-    
     def update_plots(self, _):
         clear_output(wait=True)
-        
-        # Display widgets again
         display(widgets.VBox([
             self.dataset_controls,
             self.algorithm_controls,
             self.update_button
         ]))
         
-        # Cập nhật lại dữ liệu với dataset và noise mới
-        self.X = generate_dataset(
-            self.dataset_widget.value,
-            self.noise_widget.value
-        )
+        self.X = generate_dataset(self.dataset_widget.value, self.noise_widget.value)
         self.X = np.array(self.X, dtype=np.float64)
         
-        titles = []
-        titles.append(f'Original Data\nDataset: {self.dataset_widget.value}, Noise: {self.noise_widget.value:.2f}')
-        labels_list = []
-        labels_list.append(np.zeros(len(self.X)))
-        # Perform clustering
-        if self.kmeans_widget.value > 0:
+        titles = [f'Original Data\nDataset: {self.dataset_widget.value}, Noise: {self.noise_widget.value:.2f}']
+        labels_list = [np.zeros(len(self.X))]
+
+        reachability = None
+        optics_labels = None
+
+        if 'KMeans' in self.algs_list:
             kmeans = KMeans(n_clusters=self.kmeans_widget.value)
-            kmeans_labels = kmeans.fit_predict(self.X)
+            labels_list.append(kmeans.fit_predict(self.X))
             titles.append(f'KMeans\nClusters: {self.kmeans_widget.value}')
-            labels_list.append(kmeans_labels)
-        if self.hierarchical_widget.value > 0:
+
+        if 'Hierarchical' in self.algs_list:
             hierarchical = AgglomerativeClustering(n_clusters=self.hierarchical_widget.value)
-            hierarchical_labels = hierarchical.fit_predict(self.X)
+            labels_list.append(hierarchical.fit_predict(self.X))
             titles.append(f'Hierarchical\nClusters: {self.hierarchical_widget.value}')
-            labels_list.append(hierarchical_labels)
-        if self.dbscan_eps_widget.value > 0:
+
+        if 'DBSCAN' in self.algs_list:
             dbscan = DBSCAN(eps=self.dbscan_eps_widget.value, min_samples=self.dbscan_min_samples_widget.value)
-            dbscan_labels = dbscan.fit_predict(self.X)
+            labels_list.append(dbscan.fit_predict(self.X))
             titles.append(f'DBSCAN\neps: {self.dbscan_eps_widget.value}, min_samples: {self.dbscan_min_samples_widget.value}')
-            labels_list.append(dbscan_labels)
-        if self.optics_min_samples_widget.value > 0:
+        
+        if 'OPTICS' in self.algs_list:
             optics = OPTICS(min_samples=self.optics_min_samples_widget.value)
             optics_labels = optics.fit_predict(self.X)
-            titles.append(f'OPTICS\nmin_samples: {self.optics_min_samples_widget.value}')
+            reachability = optics.reachability_[optics.ordering_]
             labels_list.append(optics_labels)
-        
-        # Call visualize method
-        self.visualization.visualize(self.X, labels_list, titles)
+            titles.append(f'OPTICS\nmin_samples: {self.optics_min_samples_widget.value}')
+
+        self.visualization.visualize(self.X, labels_list, titles, reachability, optics_labels)
 
 
 if __name__ == '__main__':
