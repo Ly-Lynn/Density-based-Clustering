@@ -55,7 +55,7 @@ class UnionFind:
         for i in range(n):
             self.sid[i] = mp[self.sid[i]]
 
-class Denclue2D(object):
+class Denclue2D:
     def __init__(self, x, y, h=0.3, xi=0.1, k=0.5, delta=0.1, max_times=100, plot=False):
         self.x = x
         self.y = y
@@ -67,23 +67,23 @@ class Denclue2D(object):
         self.is_out = []
         self.cluster_id = []
         self.plot = plot
-        # Lưu các tham số vào instance
-        self.h = h  # Bandwidth parameter
-        self.xi = xi  # Density threshold
-        self.k = k  # Cluster connectivity threshold
-        self.delta = delta  # Step size
+        self.h = h
+        self.xi = xi
+        self.k = k
+        self.delta = delta
         self.max_times = max_times
         self.paths = []
+
     def f_gauss(self, x):
         s = 0
         for p in self.ps:
-            s += k_gauss((x - p) / self.h)  # Sử dụng self.h thay vì H
+            s += k_gauss((x - p) / self.h)
         return s / (self.n * (self.h ** 2))
 
     def delta_f(self, x):
         s = np.array([0., 0.])
         for p in self.ps:
-            s += k_gauss((x - p) / self.h) * (p - x)  # Sử dụng self.h
+            s += k_gauss((x - p) / self.h) * (p - x)
         return s / ((self.h ** 4) * self.n)
     
     def climbs(self):
@@ -96,12 +96,11 @@ class Denclue2D(object):
         d = self.delta_f(x)
         if slen(d) == 0:
             return x
-        return x + d * self.delta / slen(d)  # Sử dụng self.delta
+        return x + d * self.delta / slen(d)
 
-    # Hill Climbing Algorithm
     def get_max(self, start):
         x = start
-        positions = [x]  # Lưu các vị trí trong quá trình hội tụ
+        positions = [x]
         for i in range(self.max_times):
             y = self.next_pos(x)
             positions.append(y)
@@ -114,7 +113,7 @@ class Denclue2D(object):
         uf = UnionFind(self.n)
         for i in range(self.n):
             for j in range(i + 1, self.n):
-                if dist(self.attrs[i], self.attrs[j]) < 2 * self.delta:  # Sử dụng self.delta
+                if dist(self.attrs[i], self.attrs[j]) < 2 * self.delta:
                     uf.merge(i, j)
         uf.arrange()
         new_attrs = []
@@ -127,11 +126,11 @@ class Denclue2D(object):
     def tag_outs(self):
         for at in self.attrs:
             dens = self.f_gauss(at)
-            self.is_out.append(dens < self.xi)  # Sử dụng self.xi
+            self.is_out.append(dens < self.xi)
 
     def merge_cluster(self):
         uf = UnionFind(len(self.attrs))
-        is_higher = [self.f_gauss(p) >= self.xi for p in self.ps]  # Sử dụng self.xi
+        is_higher = [self.f_gauss(p) >= self.xi for p in self.ps]
         for i in range(self.n):
             for j in range(i + 1, self.n):
                 if self.bel[i] != self.bel[j] \
@@ -139,7 +138,7 @@ class Denclue2D(object):
                         and is_higher[j] \
                         and (not self.is_out[self.bel[i]]) \
                         and (not self.is_out[self.bel[j]]) \
-                        and dist(self.ps[i], self.ps[j]) < self.k:  # Sử dụng self.k
+                        and dist(self.ps[i], self.ps[j]) < self.k:
                     uf.merge(self.bel[i], self.bel[j])
         uf.arrange()
         for i in range(len(self.attrs)):
@@ -169,58 +168,51 @@ class Denclue2D(object):
         self.merge_cluster()
         return self.get_result()
 
-    def plot_hill_climbing (self):
-        plt.figure(figsize=(10, 6))
-        
-        plt.scatter([p[0] for p in self.ps], [p[1] for p in self.ps], c='lightgrey', s=30, label="Data points")
+    def plot_hill_climbing(self, ax):
+        ax.scatter([p[0] for p in self.ps], [p[1] for p in self.ps], c='lightgrey', s=30, label="Data points")
         
         for path in self.paths:
             path = np.array(path)
-            plt.plot(path[:, 0], path[:, 1], 'o-', c='blue', alpha=0.5)
-            
+            ax.plot(path[:, 0], path[:, 1], 'o-', c='blue', alpha=0.5)
             for i in range(len(path) - 1):
-                plt.arrow(path[i][0], path[i][1],
-                          path[i + 1][0] - path[i][0],
-                          path[i + 1][1] - path[i][1],
-                          head_width=0.05, color='blue', alpha=0.5)
+                ax.arrow(path[i][0], path[i][1],
+                         path[i + 1][0] - path[i][0],
+                         path[i + 1][1] - path[i][1],
+                         head_width=0.05, color='blue', alpha=0.5)
 
         local_max_positions = np.array(self.attrs)
-        plt.scatter(local_max_positions[:, 0], local_max_positions[:, 1], c='red', s=100, label="Local Maxima")
+        ax.scatter(local_max_positions[:, 0], local_max_positions[:, 1], c='red', s=100, label="Local Maxima")
         
-        plt.xlabel("Feature 1")
-        plt.ylabel("Feature 2")
-        plt.title("Hill Climbing Process for All Points")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        ax.set_xlabel("Feature 1")
+        ax.set_ylabel("Feature 2")
+        ax.set_title("Hill Climbing Process")
+        ax.legend()
+        ax.grid(True)
 
-    def plot_clusters(self, labels):
-        
+    def plot_clusters(self, ax, labels):
         points = np.array(self.ps)
-        
         unique_labels = set(labels)
         colors = plt.cm.viridis(np.linspace(0, 1, len(unique_labels)))
         
-        plt.figure(figsize=(10, 6))
-        
         for label, color in zip(unique_labels, colors):
             if label == -1:
-                plt.scatter(points[labels == label][:, 0], points[labels == label][:, 1], 
-                            c='red', s=30, label="Noise", alpha=0.6)
+                ax.scatter(points[np.array(labels) == label][:, 0], points[np.array(labels) == label][:, 1], 
+                           c='red', s=30, label="Noise", alpha=0.6)
             else:
-                plt.scatter(points[labels == label][:, 0], points[labels == label][:, 1], 
-                            color=color, s=30, label=f"Cluster {label}", alpha=0.6)
+                ax.scatter(points[np.array(labels) == label][:, 0], points[np.array(labels) == label][:, 1], 
+                           color=color, s=30, label=f"Cluster {label}", alpha=0.6)
         
-        plt.xlabel("Feature 1")
-        plt.ylabel("Feature 2")
-        plt.title("Dataset after Clustering")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        ax.set_xlabel("Feature 1")
+        ax.set_ylabel("Feature 2")
+        ax.set_title("Dataset after Clustering")
+        ax.legend()
+        ax.grid(True)
     
     def __call__(self):
         _, labels = self.work()
         if self.plot:
-            self.plot_hill_climbing()
-            self.plot_clusters(labels)
+            fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+            self.plot_hill_climbing(axes[0])
+            self.plot_clusters(axes[1], labels)
+            plt.show()
         return self.get_result()
