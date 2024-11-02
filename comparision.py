@@ -4,7 +4,7 @@ from sklearn.datasets import make_moons, make_blobs, make_circles
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN, OPTICS
 import ipywidgets as widgets
 from IPython.display import display, clear_output
-from visualization import Visualization
+from .visualization import Visualization
 
 def generate_dataset(dataset_type, noise=0.1, n_samples=300):
     if dataset_type == "moons":
@@ -23,8 +23,8 @@ class ClusteringComparison:
     def __init__(self, list_algs):
         self.dataset_types = ['moons', 'circles', 'blobs', 'anisotropic']
         # Initialize visualization object
-        self.visualization = Visualization()
         self.algs_list = list_algs
+        self.visualization = Visualization(self.algs_list)
         # Widgets cho dataset
         self.dataset_widget = widgets.Dropdown(
             options=self.dataset_types,
