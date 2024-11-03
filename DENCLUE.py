@@ -14,7 +14,7 @@ def dist(x, y):
 def k_gauss(x):
     return math.exp(-0.5 * sqrs(x)) / (2 * math.pi)
 
-def get_z(x, y, f):
+def get_z(x, y, f): 
     m, n = x.shape
     z = np.empty((m, n))
     for i in range(m):
@@ -211,8 +211,9 @@ class Denclue2D:
     def __call__(self):
         _, labels = self.work()
         if self.plot:
-            fig, axes = plt.subplots(1, 1, figsize=(10, 10))
+            fig, axes = plt.subplots(1, 1, figsize=(7, 7))
             # self.plot_hill_climbing(axes[0])
             self.plot_clusters(axes, labels)
             plt.show()
         return self.get_result()
+N
