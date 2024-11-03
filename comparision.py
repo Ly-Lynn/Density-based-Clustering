@@ -57,14 +57,14 @@ class ClusteringComparison:
                 )
             if alg == 'DBSCAN':
                 self.dbscan_eps_widget = widgets.FloatSlider(
-                    value=0.3,
+                    value=0.25,
                     min=0.1,
                     max=1.0,
                     step=0.05,
                     description='DBSCAN eps:'
                 )
                 self.dbscan_min_samples_widget = widgets.IntSlider(
-                    value=5,
+                    value=4,
                     min=2,
                     max=15,
                     description='DBSCAN min_samples:'
