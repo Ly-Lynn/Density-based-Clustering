@@ -216,4 +216,3 @@ class Denclue2D:
             self.plot_clusters(axes, labels)
             plt.show()
         return self.get_result()
-N
