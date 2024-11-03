@@ -8,16 +8,16 @@ from .visualization import Visualization
 
 def generate_dataset(dataset_type, noise=0.1, n_samples=100):
     if dataset_type == "moons":
-        X, _ = make_moons(n_samples=n_samples, noise=noise, random_state=42)  # Extract only X
+        X, _ = make_moons(n_samples=n_samples, noise=noise, random_state=42)  
         return X
     elif dataset_type == "circles":
-        X, _ = make_circles(n_samples=n_samples, noise=noise, factor=0.5, random_state=42)  # Extract only X
+        X, _ = make_circles(n_samples=n_samples, noise=noise, factor=0.5, random_state=42)
         return X
     elif dataset_type == "blobs":
-        X, _ = make_blobs(n_samples=n_samples, centers=3, cluster_std=noise, random_state=42)  # Extract only X
+        X, _ = make_blobs(n_samples=n_samples, centers=3, cluster_std=noise, random_state=42)
         return X
     elif dataset_type == "anisotropic":
-        X, _ = make_blobs(n_samples=n_samples, centers=3, random_state=42)  # Extract only X
+        X, _ = make_blobs(n_samples=n_samples, centers=3, random_state=42)  
         transformation = [[0.6, -0.6], [-0.4, 0.8]]
         X = np.dot(X, transformation)
         return X
